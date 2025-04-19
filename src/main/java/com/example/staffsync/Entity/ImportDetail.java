@@ -9,7 +9,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "import_detail")
+@Table(name = "import_details")
 public class ImportDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

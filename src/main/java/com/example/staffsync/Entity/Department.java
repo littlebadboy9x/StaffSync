@@ -1,18 +1,19 @@
 package com.example.staffsync.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
+@Table(name = "department")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "department")
 public class Department {
+
     @Id
     @Column(name = "id")
     private UUID id;
@@ -24,11 +25,15 @@ public class Department {
     private String name;
 
     @Column(name = "status")
-    private String status;
+    private Byte status;
 
     @Column(name = "created_date")
-    private String createdDate;
+    private Long createdDate;
 
     @Column(name = "last_modified_date")
-    private String lastModifiedDate;
+    private Long lastModifiedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "campus_id")
+    private Campus campus;
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ImportHistoryReository extends JpaRepository<ImportHistory, Long> {
+public interface ImportHistoryRepository extends JpaRepository<ImportHistory, Long> {
     List<ImportHistory> findAllByOrderByImportDateDesc();
 }
