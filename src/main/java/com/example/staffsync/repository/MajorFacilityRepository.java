@@ -9,6 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface MajorFacilityRepository extends JpaRepository<MajorFacility, UUID> {
-
     List<MajorFacility> findByDepartmentFacilityId(UUID departmentFacilityId);
 }

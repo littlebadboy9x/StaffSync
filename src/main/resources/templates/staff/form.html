@@ -1,10 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${isNew ? 'Add Staff' : 'Edit Staff'}"></title>
 </head>
 <body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="${isNew ? 'Add Staff' : 'Edit Staff'}"></h2>
+        <a href="/staff" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
 
+    <div class="card">
+        <div class="card-body">
+            <form id="staffForm">
+                <input type="hidden" id="staffId" th:value="${staff.id}">
+
+                <div class="mb-3">
+                    <label for="code" class="form-label">Staff Code*</label>
+                    <input type="text" class="form-control" id="code" name="code"
+                           th:value="${staff.code}" required maxlength="15"
+                           th:readonly="${!isNew}">
+                    <div class="invalid-feedback" id="codeError"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name*</label>
+                    <input type="text" class="form-control" id="name" name="name"
+                           th:value="${staff.name}" required maxlength="100">
+                    <div class="invalid-feedback" id="nameError"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="fptEmail" class="form-label">FPT Email</label>
+                    <input type="email" class="form-control" id="fptEmail" name="fptEmail"
+                           th:value="${staff.fptEmail}" maxlength="100">
+                    <div class="form-text">Must end with @fpt.edu.vn</div>
+                    <div class="invalid-feedback" id="fptEmailError"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="feEmail" class="form-label">FE Email</label>
+                    <input type="email" class="form-control" id="feEmail" name="feEmail"
+                           th:value="${staff.feEmail}" maxlength="100">
+                    <div class="form-text">Must end with @fe.edu.vn</div>
+                    <div class="invalid-feedback" id="feEmailError"></div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        $(document).ready(function() {
+            $('#staffForm').submit(function(e) {
+                e.preventDefault();
+
+                // Reset error messages
+                $('.is-invalid').removeClass('is-invalid');
+
+                const staffId = $('#staffId').val();
+                const isNew = staffId === '' || staffId === 'null';
+
+                const staff = {
+                    code: $('#code').val(),
+                    name: $('#name').val(),
+                    fptEmail: $('#fptEmail').val(),
+                    feEmail: $('#feEmail').val()
+                };
+
+                const url = isNew ? '/api/staff' : `/api/staff/${staffId}`;
+                const method = isNew ? 'POST' : 'PUT';
+
+                $.ajax({
+                    url: url,
+                    type: method,
+                    contentType: 'application/json',
+                    data: JSON.stringify(staff),
+                    success: function() {
+                        window.location.href = '/staff';
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON;
+
+                        if (errors) {
+                            Object.keys(errors).forEach(key => {
+                                $(`#${key}`).addClass('is-invalid');
+                                $(`#${key}Error`).text(errors[key]);
+                            });
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            alert('Error: ' + xhr.responseJSON.message);
+                        } else {
+                            alert('An error occurred. Please try again.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</th:block>
 </body>
 </html>

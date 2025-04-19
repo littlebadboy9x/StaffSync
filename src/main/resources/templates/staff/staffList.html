@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Staff List</title>
+</head>
+<body>
+<h2>Staff List</h2>
+
+<!-- Nút Add nhân viên -->
+<a href="/staff/new" style="margin-bottom: 10px; padding: 10px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Add New Staff</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>FPT Email</th>
+        <th>FE Email</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Hiển thị danh sách nhân viên -->
+    <tr th:each="s : ${staff}">
+        <!-- Hiển thị mã nhân viên -->
+        <td th:text="${s.code}"></td>
+        <!-- Hiển thị tên nhân viên -->
+        <td th:text="${s.name}"></td>
+        <!-- Hiển thị email FPT -->
+        <td th:text="${s.fptEmail}"></td>
+        <!-- Hiển thị email FE -->
+        <td th:text="${s.feEmail}"></td>
+        <!-- Hiển thị trạng thái nhân viên -->
+        <td th:text="${s.status == 1 ? 'Active' : 'Inactive'}"></td>
+        <td>
+            <!-- Link chỉnh sửa thông tin nhân viên -->
+            <a th:href="@{/staff/{id}/edit(id=${s.id})}">Edit</a>
+            <!-- Link quản lý bộ môn chuyên ngành -->
+            <a th:href="@{/staff/{id}/specializations(id=${s.id})}">Specializations</a>
+        </td>
+    </tr>
+    <!-- Nếu danh sách nhân viên trống, hiển thị thông báo -->
+    <tr th:if="${#lists.isEmpty(staff)}">
+        <td colspan="6">No staff found</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

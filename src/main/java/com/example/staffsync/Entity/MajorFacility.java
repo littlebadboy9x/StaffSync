@@ -1,20 +1,23 @@
 package com.example.staffsync.Entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(name = "major_facility")
 @Getter
 @Setter
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "major_facility")
 public class MajorFacility {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private UUID id;
 
     @ManyToOne
@@ -25,12 +28,15 @@ public class MajorFacility {
     @JoinColumn(name = "id_major")
     private Major major;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private Byte status;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", nullable = false)
     private Long createdDate;
 
-    @Column(name = "last_modified_date")
+    @Column(name = "last_modified_date", nullable = false)
     private Long lastModifiedDate;
+
+    @OneToMany(mappedBy = "majorFacility")
+    private Set<StaffMajorFacility> staffMajorFacilities;
 }

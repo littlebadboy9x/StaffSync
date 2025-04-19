@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chỉnh sửa thông tin nhân viên</title>
+</head>
+<body>
+
+<h1>Chỉnh sửa thông tin nhân viên</h1>
+
+<form th:action="@{/staff/{id}(id=${staff.id})}" th:object="${staff}" method="post">
+    <input type="hidden" name="_method" value="PUT" /> <!-- Dùng để thực hiện PUT request -->
+
+    <div>
+        <label for="code">Mã nhân viên:</label>
+        <input type="text" id="code" th:field="*{code}" placeholder="Mã nhân viên" required maxlength="15" />
+    </div>
+
+    <div>
+        <label for="name">Tên nhân viên:</label>
+        <input type="text" id="name" th:field="*{name}" placeholder="Tên nhân viên" required maxlength="100" />
+    </div>
+
+    <div>
+        <label for="fptEmail">Email FPT:</label>
+        <input type="email" id="fptEmail" th:field="*{fptEmail}" placeholder="Email FPT" required maxlength="100" />
+    </div>
+
+    <div>
+        <label for="feEmail">Email FE:</label>
+        <input type="email" id="feEmail" th:field="*{feEmail}" placeholder="Email FE" required maxlength="100" />
+    </div>
+
+    <div>
+        <label for="status">Trạng thái:</label>
+        <select id="status" th:field="*{status}">
+            <option value="1" th:selected="${staff.status == 1}">Đang hoạt động</option>
+            <option value="0" th:selected="${staff.status == 0}">Ngừng hoạt động</option>
+        </select>
+    </div>
+
+    <div>
+        <button type="submit">Cập nhật thông tin</button>
+    </div>
+</form>
+
+<div>
+    <a th:href="@{/staff}" class="btn btn-primary">Trở lại danh sách nhân viên</a>
+</div>
+
+</body>
+</html>

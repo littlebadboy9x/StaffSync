@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "employees")
@@ -38,6 +39,11 @@ public class Employee {
 
     @Column(name = "is_active")
     private boolean active = true;
+
+    // Thêm quan hệ với Campus (Dùng UUID cho campus_id)
+    @ManyToOne
+    @JoinColumn(name = "campus_id")  // khóa ngoại
+    private Campus campus;  // Đảm bảo class Campus đã được khai báo đúng
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<EmployeeSpecialization> specializations = new HashSet<>();

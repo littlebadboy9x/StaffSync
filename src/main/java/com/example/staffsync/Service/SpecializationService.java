@@ -95,16 +95,22 @@ public class SpecializationService {
 
     private StaffMajorFacilityDTO convertToDTO(StaffMajorFacility staffMajorFacility) {
         StaffMajorFacilityDTO dto = new StaffMajorFacilityDTO();
-        dto.setId(staffMajorFacility.getId());
-        dto.setStaffId(staffMajorFacility.getStaff().getId());
-        dto.setStaffCode(staffMajorFacility.getStaff().getStaffCode());
-        dto.setStaffName(staffMajorFacility.getStaff().getName());
-        dto.setMajorId(staffMajorFacility.getMajorFacility().getMajor().getId());
-        dto.setMajorName(staffMajorFacility.getMajorFacility().getMajor().getName());
-        dto.setDepartmentId(staffMajorFacility.getMajorFacility().getDepartmentFacility().getDepartment().getId());
-        dto.setDepartmentName(staffMajorFacility.getMajorFacility().getDepartmentFacility().getDepartment().getName());
-        dto.setFacilityId(staffMajorFacility.getMajorFacility().getDepartmentFacility().getFacility().getId());
-        dto.setFacilityName(staffMajorFacility.getMajorFacility().getDepartmentFacility().getFacility().getName());
+        
+        if (staffMajorFacility != null && staffMajorFacility.getStatus() == 1) {
+            dto.setId(staffMajorFacility.getId());
+            dto.setStatus(staffMajorFacility.getStatus());
+            
+            Staff staff = staffMajorFacility.getStaff();
+            if (staff != null && staff.getStatus().equals(1)) {
+                dto.setStaffId(staff.getId());
+            }
+            
+            MajorFacility majorFacility = staffMajorFacility.getMajorFacility();
+            if (majorFacility != null && majorFacility.getStatus() == 1) {
+                dto.setMajorFacilityId(majorFacility.getId());
+            }
+        }
+        
         return dto;
     }
 }

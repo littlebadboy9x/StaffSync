@@ -120,13 +120,37 @@ public class ExcelService {
                         throw new IllegalArgumentException("Code and Name are required");
                     }
 
-                    // Validate email formats
-                    if (!fptEmail.isEmpty() && !fptEmail.endsWith("@fpt.edu.vn")) {
-                        throw new IllegalArgumentException("FPT email must end with @fpt.edu.vn");
+                    // Validate length constraints
+                    if (code.length() > 15) {
+                        throw new IllegalArgumentException("Code must be less than 15 characters");
+                    }
+                    if (name.length() > 100 || fptEmail.length() > 100 || feEmail.length() > 100) {
+                        throw new IllegalArgumentException("Fields must be less than 100 characters");
                     }
 
-                    if (!feEmail.isEmpty() && !feEmail.endsWith("@fe.edu.vn")) {
-                        throw new IllegalArgumentException("FE email must end with @fe.edu.vn");
+                    // Validate email format and content
+                    if (!fptEmail.isEmpty()) {
+                        if (!fptEmail.endsWith("@fpt.edu.vn")) {
+                            throw new IllegalArgumentException("FPT email must end with @fpt.edu.vn");
+                        }
+                        if (fptEmail.contains(" ") || !fptEmail.matches("^[a-zA-Z0-9.@]*$")) {
+                            throw new IllegalArgumentException("FPT email cannot contain spaces or Vietnamese characters");
+                        }
+                        if (!fptEmail.contains(code)) {
+                            throw new IllegalArgumentException("FPT email must contain employee code");
+                        }
+                    }
+
+                    if (!feEmail.isEmpty()) {
+                        if (!feEmail.endsWith("@fe.edu.vn")) {
+                            throw new IllegalArgumentException("FE email must end with @fe.edu.vn");
+                        }
+                        if (feEmail.contains(" ") || !feEmail.matches("^[a-zA-Z0-9.@]*$")) {
+                            throw new IllegalArgumentException("FE email cannot contain spaces or Vietnamese characters");
+                        }
+                        if (!feEmail.contains(code)) {
+                            throw new IllegalArgumentException("FE email must contain employee code");
+                        }
                     }
 
                     // Validate email contains code
@@ -200,13 +224,23 @@ public class ExcelService {
                                 .orElseThrow(() -> new EntityNotFoundException("Specialization not found: " + specializationName));
 
                         // Check if employee already has a specialization in this campus
-                        if (!employeeSpecializationRepository.existsByEmployeeIdAndCampusId(employee.getId(), campus.getId())) {
-                            EmployeeSpecialization employeeSpecialization = new EmployeeSpecialization();
-                            employeeSpecialization.setEmployee(employee);
-                            employeeSpecialization.setSpecialization(specialization);
-                            employeeSpecialization.setCampus(campus);
-                            employeeSpecializationRepository.save(employeeSpecialization);
-                        }
+                        // boolean hasSpecializationInCampus = employeeSpecializationRepository
+                        //     .existsByEmployeeAndSpecializationDepartmentCampusAndActive(employee, campus, true);
+                        
+                        // if (hasSpecializationInCampus) {
+                        //     throw new IllegalArgumentException(
+                        //         "Employee already has an active specialization in campus: " + campusName);
+                        // }
+
+                        // Create new employee specialization
+                        EmployeeSpecialization employeeSpecialization = new EmployeeSpecialization();
+                        employeeSpecialization.setEmployee(employee);
+                        employeeSpecialization.setSpecialization(specialization);
+                        // employeeSpecialization.setActive(true);
+                        employeeSpecialization.setCreatedDate(System.currentTimeMillis());
+                        employeeSpecialization.setLastModifiedDate(System.currentTimeMillis());
+                        employeeSpecializationRepository.save(employeeSpecialization);
+
                     }
 
                     detail.setSuccessful(true);
@@ -229,16 +263,16 @@ public class ExcelService {
                 }
             }
 
-            // Update import history counts
-            importHistory.setTotalRecords(totalRows);
-            importHistory.setSuccessfulRecords(successCount);
-            importHistory.setFailedRecords(failCount);
-            importHistoryRepository.save(importHistory);
+            // // Update import history counts
+            // importHistory.setTotalRecords(totalRows);
+            // importHistory.setSuccessfulRecords(successCount);
+            // importHistory.setFailedRecords(failCount);
+            // importHistoryRepository.save(importHistory);
 
-            result.setTotalRecords(totalRows);
-            result.setSuccessfulRecords(successCount);
-            result.setFailedRecords(failCount);
-            result.setDetails(details);
+            // result.setTotalRecords(totalRows);
+            // result.setSuccessfulRecords(successCount);
+            // result.setFailedRecords(failCount);
+            // result.setDetails(details);
 
             return result;
         }

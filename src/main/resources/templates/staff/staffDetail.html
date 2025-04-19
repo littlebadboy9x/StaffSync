@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết nhân viên</title>
+</head>
+<body>
+
+<h1>Thông tin chi tiết nhân viên</h1>
+
+<div>
+    <h3>Mã nhân viên: <span th:text="${staff.code}"></span></h3>
+    <h3>Tên nhân viên: <span th:text="${staff.name}"></span></h3>
+    <h3>Email FPT: <span th:text="${staff.fptEmail}"></span></h3>
+    <h3>Email FE: <span th:text="${staff.feEmail}"></span></h3>
+    <h3>Trạng thái:
+        <span th:text="${staff.status == 1 ? 'Đang hoạt động' : 'Ngừng hoạt động'}"></span>
+    </h3>
+</div>
+
+<div>
+    <a th:href="@{/staff}" class="btn btn-primary">Trở lại danh sách nhân viên</a>
+    <a th:href="@{/staff/{id}/edit(id=${staff.id})}" class="btn btn-warning">Sửa thông tin</a>
+    <a th:href="@{/staff/{id}/status(id=${staff.id})}" class="btn btn-info" th:text="${staff.status == 1 ? 'Ngừng hoạt động' : 'Kích hoạt'}"></a>
+    <a th:href="@{/staff/{id}/delete(id=${staff.id})}" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?')">Xóa nhân viên</a>
+</div>
+
+</body>
+</html>

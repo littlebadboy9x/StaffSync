@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface DepartmentFacilityRepository extends JpaRepository<DepartmentFacility, UUID> {
-
     List<DepartmentFacility> findByFacilityId(UUID facilityId);
+    List<DepartmentFacility> findByDepartmentId(UUID departmentId);
 }

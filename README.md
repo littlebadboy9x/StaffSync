@@ -90,7 +90,7 @@ mvn clean package
 4. Run the application:
 
 ```shellscript
-java -jar target/employee-management-0.0.1-SNAPSHOT.jar
+java -jar target/StaffSync-0.0.1-SNAPSHOT.jar
 ```
 
 5. Access the application at `http://localhost:8080`
@@ -163,4 +163,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-© 2025 FPOLY. All rights reserved.
+© 2025 Tran Viet Vuong - FPOLY. All rights reserved.

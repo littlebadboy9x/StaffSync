@@ -9,16 +9,11 @@ import java.util.UUID;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, UUID> {
+    boolean existsByCode(String code);  // Sửa từ existsByStaffCode thành existsByCode
+    boolean existsByFptEmail(String fptEmail);
+    boolean existsByFeEmail(String feEmail);
 
-    Optional<Staff> findByStaffCode(String staffCode);
-
-    boolean existsByStaffCode(String staffCode);
-
-    boolean existsByAccountFpt(String accountFpt);
-
-    boolean existsByAccountFe(String accountFe);
-
-    Optional<Staff> findByAccountFpt(String accountFpt);
-
-    Optional<Staff> findByAccountFe(String accountFe);
+    Optional<Staff> findByCode(String code);
+    Optional<Staff> findByFptEmail(String fptEmail);
+    Optional<Staff> findByFeEmail(String feEmail);
 }

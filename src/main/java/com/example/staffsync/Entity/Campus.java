@@ -1,29 +1,40 @@
 package com.example.staffsync.Entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
+@Table(name = "facility") // Tên bảng trong database là "facility"
 @Getter
 @Setter
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "campuses")
 public class Campus {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @NotBlank(message = "Campus name is required")
-    @Size(max = 100, message = "Campus name must be less than 100 characters")
+    @Id
+    @Column(name = "id")
+    private UUID id;
+
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "name")
     private String name;
 
-    @OneToOne(mappedBy = "campus", cascade = CascadeType.ALL)
-    private Set<Department> departmentSet = new HashSet<>();
+    @Column(name = "status")
+    private Byte status;
+
+    @Column(name = "created_date")
+    private Long createdDate;
+
+    @Column(name = "last_modified_date")
+    private Long lastModifiedDate;
+
+
+    @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL)
+    private Set<DepartmentFacility> departmentFacilities = new HashSet<>();
 }

@@ -1,37 +1,41 @@
 package com.example.staffsync.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.*;
+    import jakarta.persistence.*;
+    import lombok.Getter;
+    import lombok.Setter;
+    import lombok.NoArgsConstructor;
+    import lombok.AllArgsConstructor;
 
-import java.util.UUID;
+    import java.util.Set;
+    import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "facility")
-public class Facility {
-    @Id
-    @Column(name = "id")
-    private UUID id;
+    @Entity
+    @Table(name = "facility")
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Facility {
 
-    @Column(name = "code")
-    private String code;
+        @Id
+        @Column(name = "id", nullable = false)
+        private UUID id;
 
-    @Column(name = "name")
-    private String name;
+        @Column(name = "code", nullable = false, unique = true)
+        private String code;
 
-    @Column(name = "status")
-    private String status;
+        @Column(name = "name", nullable = false)
+        private String name;
 
-    @Column(name = "created_date")
-    private Long createdDate;
+        @Column(name = "status", nullable = false)
+        private Byte status;
 
-    @Column(name = "last_modified_date")
-    private Long lastModifiedDate;
-}
+        @Column(name = "created_date", nullable = false)
+        private Long createdDate;
+
+        @Column(name = "last_modified_date", nullable = false)
+        private Long lastModifiedDate;
+
+        @OneToMany(mappedBy = "facility")
+        private Set<DepartmentFacility> departmentFacilities;
+    }

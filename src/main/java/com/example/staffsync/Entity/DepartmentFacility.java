@@ -1,40 +1,46 @@
 package com.example.staffsync.Entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+    import jakarta.persistence.*;
+    import lombok.Getter;
+    import lombok.Setter;
+    import lombok.NoArgsConstructor;
+    import lombok.AllArgsConstructor;
 
-import java.util.UUID;
+    import java.util.Set;
+    import java.util.UUID;
 
-@Entity
-@Getter
-@Setter
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "department_facility")
-public class DepartmentFacility {
-    @Id
-    @Column(name = "id")
-    private UUID id;
+    @Entity
+    @Table(name = "department_facility")
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class DepartmentFacility {
+        @Id
+        @Column(name = "id", nullable = false)
+        private UUID id;
 
-    @ManyToMany
-    @JoinColumn(name = "department_id")
-    private Department department;
+        @ManyToOne
+        @JoinColumn(name = "id_department")
+        private Department department;
 
-    @ManyToMany
-    @JoinColumn(name = "facility_id")
-    private Facility facility;
+        @ManyToOne
+        @JoinColumn(name = "id_facility")
+        private Facility facility;
 
-    @ManyToMany
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
+        @ManyToOne
+        @JoinColumn(name = "id_staff")
+        private Staff staff;
 
-    @Column(name = "status")
-    private Byte status;
+        @Column(name = "status", nullable = false)
+        private Byte status;
 
-    @Column(name = "created_date")
-    private Long createdDate;
+        @Column(name = "created_date", nullable = false)
+        private Long createdDate;
 
-    @Column(name = "last_modified_date")
-    private Long lastModifiedDate;
-}
+        @Column(name = "last_modified_date", nullable = false)
+        private Long lastModifiedDate;
+
+        @OneToMany(mappedBy = "departmentFacility")
+        private Set<MajorFacility> majorFacilities;
+    }
