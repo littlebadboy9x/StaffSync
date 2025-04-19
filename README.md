@@ -23,10 +23,7 @@ The application uses the following database schema:
 
 ## Sơ Đồ Cơ Sở Dữ Liệu
 
-Ứng dụng sử dụng sơ đồ cơ sở dữ liệu sau:
-
-![Sơ Đồ Cơ Sở Dữ Liệu](./images/ERD.png)
-
+![Database Schema](src/main/resources/static/images/database-schema.png)
 
 ## Features
 
