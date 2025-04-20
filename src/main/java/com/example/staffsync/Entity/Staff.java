@@ -32,11 +32,9 @@ public class Staff {
     private String name;
 
     @Column(name = "account_fpt", nullable = false, unique = true, length = 100)
-    @Pattern(regexp = "^[a-zA-Z0-9._-]+@fpt\\.edu\\.vn$", message = "Invalid FPT email format")
     private String fptEmail;
 
     @Column(name = "account_fe", nullable = false, unique = true, length = 100)
-    @Pattern(regexp = "^[a-zA-Z0-9._-]+@fe\\.edu\\.vn$", message = "Invalid FE email format")
     private String feEmail;
 
     @Column(name = "status", nullable = false)

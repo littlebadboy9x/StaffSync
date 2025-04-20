@@ -2,56 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 <head>
-    <title th:text="${isNew ? 'Add Staff' : 'Edit Staff'}"></title>
+    <title th:text="${isNew != null and isNew ? 'Thêm nhân viên mới' : 'Chỉnh sửa nhân viên'}"></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 th:text="${isNew ? 'Add Staff' : 'Edit Staff'}"></h2>
+        <h2 th:text="${isNew != null and isNew ? 'Thêm nhân viên mới' : 'Chỉnh sửa nhân viên'}"></h2>
         <a href="/staff" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
 
+    <!-- Flash Messages -->
+    <div th:if="${message}" class="alert alert-success" role="alert">
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <span th:text="${error}"></span>
+    </div>
+
     <div class="card">
         <div class="card-body">
-            <form id="staffForm">
-                <input type="hidden" id="staffId" th:value="${staff.id}">
+            <form id="staffForm" th:action="@{/staff}" th:object="${staff}" method="post" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}"/>
 
                 <div class="mb-3">
-                    <label for="code" class="form-label">Staff Code*</label>
-                    <input type="text" class="form-control" id="code" name="code"
-                           th:value="${staff.code}" required maxlength="15"
-                           th:readonly="${!isNew}">
-                    <div class="invalid-feedback" id="codeError"></div>
+                    <label for="code" class="form-label">Mã nhân viên*</label>
+                    <input type="text" class="form-control" id="code" name="code" th:value="*{code}" required maxlength="15"
+                           th:readonly="${isNew != null and !isNew}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('code')}" th:errors="*{code}">
+                        Vui lòng nhập mã nhân viên
+                    </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="name" class="form-label">Name*</label>
-                    <input type="text" class="form-control" id="name" name="name"
-                           th:value="${staff.name}" required maxlength="100">
-                    <div class="invalid-feedback" id="nameError"></div>
+                    <label for="name" class="form-label">Tên nhân viên*</label>
+                    <input type="text" class="form-control" id="name" name="name" th:value="*{name}" required maxlength="100">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                        Vui lòng nhập tên nhân viên
+                    </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="fptEmail" class="form-label">FPT Email</label>
-                    <input type="email" class="form-control" id="fptEmail" name="fptEmail"
-                           th:value="${staff.fptEmail}" maxlength="100">
+                    <label for="fptEmail" class="form-label">Email FPT</label>
+                    <input type="email" class="form-control" id="fptEmail" name="fptEmail" th:value="*{fptEmail}" required/>
                     <div class="form-text">Must end with @fpt.edu.vn</div>
-                    <div class="invalid-feedback" id="fptEmailError"></div>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fptEmail')}" th:errors="*{fptEmail}">
+                        Vui lòng nhập email FPT hợp lệ
+                    </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="feEmail" class="form-label">FE Email</label>
-                    <input type="email" class="form-control" id="feEmail" name="feEmail"
-                           th:value="${staff.feEmail}" maxlength="100">
+                    <label for="feEmail" class="form-label">Email FE</label>
+                    <input type="email" class="form-control" id="feEmail" name="feEmail" th:value="*{feEmail}" required/>
                     <div class="form-text">Must end with @fe.edu.vn</div>
-                    <div class="invalid-feedback" id="feEmailError"></div>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('feEmail')}" th:errors="*{feEmail}">
+                        Vui lòng nhập email FE hợp lệ
+                    </div>
                 </div>
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Save
+                        <i class="bi bi-save"></i> Lưu
                     </button>
                 </div>
             </form>
@@ -60,6 +73,8 @@
 </div>
 
 <th:block layout:fragment="scripts">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#staffForm').submit(function(e) {
@@ -68,31 +83,25 @@
                 // Reset error messages
                 $('.is-invalid').removeClass('is-invalid');
 
-                const staffId = $('#staffId').val();
-                const isNew = staffId === '' || staffId === 'null';
+                const staffId = $('input[name="id"]').val();
+                const isNew = !staffId;
 
-                const staff = {
-                    code: $('#code').val(),
-                    name: $('#name').val(),
-                    fptEmail: $('#fptEmail').val(),
-                    feEmail: $('#feEmail').val()
-                };
-
-                const url = isNew ? '/api/staff' : `/api/staff/${staffId}`;
+                const formData = new FormData(this);
+                const url = isNew ? '/staff' : `/staff/${staffId}`;
                 const method = isNew ? 'POST' : 'PUT';
 
                 $.ajax({
                     url: url,
                     type: method,
-                    contentType: 'application/json',
-                    data: JSON.stringify(staff),
-                    success: function() {
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
                         window.location.href = '/staff';
                     },
                     error: function(xhr) {
-                        const errors = xhr.responseJSON;
-
-                        if (errors) {
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
                             Object.keys(errors).forEach(key => {
                                 $(`#${key}`).addClass('is-invalid');
                                 $(`#${key}Error`).text(errors[key]);
@@ -106,6 +115,23 @@
                 });
             });
         });
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
     </script>
 </th:block>
 </body>

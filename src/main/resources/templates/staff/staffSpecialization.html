@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: html(~{::title}, ~{::section}, ~{::scripts})}">
+<head>
+    <title>Quản lý bộ môn chuyên ngành</title>
+</head>
+<body>
+<section>
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Quản lý bộ môn chuyên ngành</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <!-- Flash Messages -->
+        <div th:if="${message}" class="alert alert-success" role="alert">
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Staff Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Thông tin nhân viên</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Mã nhân viên:</strong> <span th:text="${staff.code}"></span></p>
+                        <p><strong>Tên nhân viên:</strong> <span th:text="${staff.name}"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email FPT:</strong> <span th:text="${staff.fptEmail}"></span></p>
+                        <p><strong>Email FE:</strong> <span th:text="${staff.feEmail}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specialization Form -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Thêm bộ môn chuyên ngành</h4>
+            </div>
+            <div class="card-body">
+                <form id="specializationForm" th:action="@{/staff/{id}/specializations(id=${staff.id})}" method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="facility" class="form-label">Cơ sở</label>
+                                <select class="form-select" id="facility" name="facilityId" required>
+                                    <option value="">Chọn cơ sở</option>
+                                    <option th:each="facility : ${facilities}"
+                                            th:value="${facility.id}"
+                                            th:text="${facility.name}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="department" class="form-label">Bộ môn</label>
+                                <select class="form-select" id="department" name="departmentId" required disabled>
+                                    <option value="">Chọn bộ môn</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="major" class="form-label">Chuyên ngành</label>
+                                <select class="form-select" id="major" name="majorId" required disabled>
+                                    <option value="">Chọn chuyên ngành</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Specializations -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Danh sách bộ môn chuyên ngành</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>Cơ sở</th>
+                            <th>Bộ môn</th>
+                            <th>Chuyên ngành</th>
+                            <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="spec : ${specializations}">
+                            <td th:text="${spec.facilityName}"></td>
+                            <td th:text="${spec.departmentName}"></td>
+                            <td th:text="${spec.majorName}"></td>
+                            <td>
+                                <form th:action="@{/staff/{staffId}/specializations/{id}(staffId=${staff.id}, id=${spec.id})}" 
+                                      method="post" style="display: inline;">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+
+<th:block th:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            const facilitySelect = document.getElementById('facility');
+            const departmentSelect = document.getElementById('department');
+            const majorSelect = document.getElementById('major');
+
+            // Handle facility change
+            facilitySelect.addEventListener('change', function() {
+                const facilityId = this.value;
+                if (facilityId) {
+                    fetch(`/api/specializations/facilities/${facilityId}/departments`)
+                        .then(response => response.json())
+                        .then(departments => {
+                            departmentSelect.innerHTML = '<option value="">Chọn bộ môn</option>';
+                            departments.forEach(dept => {
+                                departmentSelect.innerHTML += 
+                                    `<option value="${dept.id}">${dept.name}</option>`;
+                            });
+                            departmentSelect.disabled = false;
+                            majorSelect.disabled = true;
+                            majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+                        });
+                } else {
+                    departmentSelect.disabled = true;
+                    majorSelect.disabled = true;
+                    departmentSelect.innerHTML = '<option value="">Chọn bộ môn</option>';
+                    majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+                }
+            });
+
+            // Handle department change
+            departmentSelect.addEventListener('change', function() {
+                const departmentId = this.value;
+                if (departmentId) {
+                    fetch(`/api/specializations/department-facilities/${departmentId}/majors`)
+                        .then(response => response.json())
+                        .then(majors => {
+                            majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+                            majors.forEach(major => {
+                                majorSelect.innerHTML += 
+                                    `<option value="${major.id}">${major.name}</option>`;
+                            });
+                            majorSelect.disabled = false;
+                        });
+                } else {
+                    majorSelect.disabled = true;
+                    majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</th:block>
+</body>
+</html> 

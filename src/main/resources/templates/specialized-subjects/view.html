@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Chi tiết chuyên ngành</title>
+</head>
+<body>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Thông tin chuyên ngành</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tên chuyên ngành:</label>
+                                        <p th:text="${specialization.name}"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Mã chuyên ngành:</label>
+                                        <p th:text="${specialization.code}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách nhân viên</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Mã nhân viên</th>
+                                        <th>Họ tên</th>
+                                        <th>Email</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="staff : ${staffList}">
+                                        <td th:text="${staff.employeeCode}"></td>
+                                        <td th:text="${staff.name}"></td>
+                                        <td th:text="${staff.email}"></td>
+                                        <td>
+                                            <span th:if="${staff.status}" class="badge badge-success">Đang làm việc</span>
+                                            <span th:unless="${staff.status}" class="badge badge-danger">Đã nghỉ việc</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

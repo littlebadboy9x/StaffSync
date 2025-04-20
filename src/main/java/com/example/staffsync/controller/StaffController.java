@@ -2,14 +2,21 @@ package com.example.staffsync.controller;
 
 import com.example.staffsync.dto.StaffDTO;
 import com.example.staffsync.Service.StaffService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -17,73 +24,167 @@ import java.util.UUID;
 @CrossOrigin
 public class StaffController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StaffController.class);
+
     @Autowired
     private StaffService staffService;
 
     // Lấy danh sách tất cả nhân viên
     @GetMapping
     public String getAllStaff(Model model) {
+        logger.info("Getting all staff");
         List<StaffDTO> staffList = staffService.findAll();
-        model.addAttribute("staff", staffList); // Thêm danh sách nhân viên vào model
-        return "staff/staffList"; // Trả về view staffList.html
+        model.addAttribute("staffList", staffList);
+        model.addAttribute("activeMenu", "staff");
+        return "staff/staffList";
     }
 
     // Lấy thông tin chi tiết nhân viên
     @GetMapping("/{id}")
     public String getStaffById(@PathVariable UUID id, Model model) {
+        logger.info("Getting staff with id: {}", id);
         StaffDTO staff = staffService.findById(id);
-        model.addAttribute("staff", staff); // Thêm thông tin nhân viên vào model
-        return "staff/staffDetail"; // Trả về view staffDetail.html
+        model.addAttribute("staff", staff);
+        model.addAttribute("isNew", false);
+        model.addAttribute("activeMenu", "staff");
+        return "staff/staffDetail";
     }
 
     // Hiển thị form thêm nhân viên
     @GetMapping("/new")
     public String showAddStaffForm(Model model) {
-        model.addAttribute("staffDTO", new StaffDTO());  // Tạo một DTO rỗng để truyền vào form
-        return "staff/addStaff";  // Trả về view addStaff.html
+        logger.info("Showing add staff form");
+        model.addAttribute("staff", new StaffDTO());
+        model.addAttribute("isNew", true);
+        model.addAttribute("activeMenu", "staff");
+        return "staff/form";
     }
 
     // Thêm nhân viên mới
     @PostMapping
-    public String addStaff(@Validated @ModelAttribute StaffDTO staffDTO, BindingResult result, Model model) {
+    public String addStaff(@Validated @ModelAttribute("staff") StaffDTO staff, 
+                          BindingResult result, 
+                          RedirectAttributes redirectAttributes) {
+        logger.info("Adding new staff: {}", staff);
+        
         if (result.hasErrors()) {
-            return "staff/addStaff";  // Nếu có lỗi, quay lại form thêm nhân viên
+            logger.error("Validation errors: {}", result.getAllErrors());
+            return "staff/form";
         }
-        staffService.save(staffDTO);  // Lưu nhân viên mới vào database
-        return "redirect:/staff";  // Chuyển hướng về danh sách nhân viên
-    }
-
-    // Thay đổi trạng thái nhân viên
-    @PutMapping("/{id}/status")
-    public String toggleStaffStatus(@PathVariable UUID id) {
-        staffService.toggleStatus(id);
-        return "redirect:/staff"; // Sau khi thay đổi trạng thái xong, chuyển hướng về trang danh sách
-    }
-
-    // Xóa nhân viên
-    @DeleteMapping("/{id}")
-    public String deleteStaff(@PathVariable UUID id) {
-        staffService.delete(id);
-        return "redirect:/staff"; // Sau khi xóa xong, chuyển hướng về trang danh sách
+        
+        try {
+            staffService.save(staff);
+            redirectAttributes.addFlashAttribute("message", "Thêm nhân viên thành công!");
+            logger.info("Staff added successfully");
+            return "redirect:/staff";
+        } catch (IllegalArgumentException e) {
+            logger.error("Error adding staff: {}", e.getMessage());
+            result.rejectValue("code", "error.staff", e.getMessage());
+            return "staff/form";
+        }
     }
 
     // Hiển thị form chỉnh sửa thông tin nhân viên
     @GetMapping("/{id}/edit")
     public String showEditStaffForm(@PathVariable UUID id, Model model) {
-        StaffDTO staff = staffService.findById(id); // Lấy thông tin nhân viên từ database
-        model.addAttribute("staff", staff); // Truyền thông tin nhân viên vào model
-        return "staff/editStaff"; // Trả về view form chỉnh sửa
+        logger.info("Showing edit form for staff with id: {}", id);
+        StaffDTO staff = staffService.findById(id);
+        model.addAttribute("staff", staff);
+        model.addAttribute("isNew", false);
+        model.addAttribute("activeMenu", "staff");
+        return "staff/form";
     }
 
     // Xử lý cập nhật thông tin nhân viên
     @PutMapping("/{id}")
-    public String updateStaff(@PathVariable UUID id, @Validated @ModelAttribute StaffDTO staffDTO, BindingResult result) {
+    public String updateStaff(@PathVariable UUID id,
+                            @Validated @ModelAttribute("staff") StaffDTO staff,
+                            BindingResult result,
+                            RedirectAttributes redirectAttributes) {
+        logger.info("Updating staff with id: {}", id);
+        
         if (result.hasErrors()) {
-            return "staff/editStaff"; // Nếu có lỗi, trả về form chỉnh sửa
+            logger.error("Validation errors: {}", result.getAllErrors());
+            return "staff/form";
         }
-        staffService.update(id, staffDTO); // Cập nhật thông tin nhân viên
-        return "redirect:/staff"; // Sau khi cập nhật thành công, chuyển hướng về trang danh sách nhân viên
+        
+        try {
+            staffService.update(id, staff);
+            redirectAttributes.addFlashAttribute("message", "Cập nhật nhân viên thành công!");
+            logger.info("Staff updated successfully");
+            return "redirect:/staff";
+        } catch (IllegalArgumentException e) {
+            logger.error("Error updating staff: {}", e.getMessage());
+            result.rejectValue("code", "error.staff", e.getMessage());
+            return "staff/form";
+        }
     }
 
+    // Thay đổi trạng thái nhân viên
+    @PutMapping("/{id}/toggle-status")
+    public String toggleStatus(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        logger.info("Toggling status for staff with id: {}", id);
+        try {
+            staffService.toggleStatus(id);
+            redirectAttributes.addFlashAttribute("message", "Cập nhật trạng thái thành công!");
+            logger.info("Status toggled successfully");
+        } catch (Exception e) {
+            logger.error("Error toggling status: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Không thể cập nhật trạng thái: " + e.getMessage());
+        }
+        return "redirect:/staff";
+    }
 
+    // AJAX endpoint for adding staff
+    @PostMapping("/ajax")
+    @ResponseBody
+    public ResponseEntity<?> addStaffAjax(@Validated @RequestBody StaffDTO staff) {
+        logger.info("Adding new staff via AJAX: {}", staff);
+        try {
+            StaffDTO savedStaff = staffService.save(staff);
+            return ResponseEntity.ok(savedStaff);
+        } catch (IllegalArgumentException e) {
+            logger.error("Error adding staff: {}", e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // AJAX endpoint for updating staff
+    @PutMapping("/{id}/ajax")
+    @ResponseBody
+    public ResponseEntity<?> updateStaffAjax(@PathVariable UUID id, @Validated @RequestBody StaffDTO staff) {
+        logger.info("Updating staff via AJAX with id: {}", id);
+        try {
+            StaffDTO updatedStaff = staffService.update(id, staff);
+            return ResponseEntity.ok(updatedStaff);
+        } catch (IllegalArgumentException e) {
+            logger.error("Error updating staff: {}", e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            if (e.getMessage().contains("FPT email")) {
+                response.put("fptEmail", e.getMessage());
+            } else if (e.getMessage().contains("FE email")) {
+                response.put("feEmail", e.getMessage());
+            } else {
+                response.put("error", e.getMessage());
+            }
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/{id}/ajax")
+    @ResponseBody
+    public ResponseEntity<?> getStaffAjax(@PathVariable String id) {
+        try {
+            StaffDTO staff = staffService.findById(UUID.fromString(id));
+            if (staff == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(staff);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Có lỗi xảy ra khi lấy thông tin nhân viên: " + e.getMessage()));
+        }
+    }
 }

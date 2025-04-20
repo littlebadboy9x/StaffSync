@@ -7,6 +7,13 @@ import java.util.UUID;
 public class StaffMajorFacilityDTO {
     private UUID id;
     private UUID staffId;
+    private String staffName;
+    private String staffFptEmail;
+    private String staffFeEmail;
     private UUID majorFacilityId;
-    private Byte status;
+    private String majorName;
+    private String departmentName;
+    private String facilityName;
+    private Long createdDate;
+    private Long lastModifiedDate;
 }

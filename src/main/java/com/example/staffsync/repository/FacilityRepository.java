@@ -8,6 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility, UUID> {
-    boolean existsByCode(String code);
 }
 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Quản lý bộ môn / chuyên ngành</title>
+</head>
+<body>
+    <div class="content">
+        <div class="container-fluid">
+            <!-- Thông tin nhân viên -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user mr-2"></i>Thông tin nhân viên
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Mã</label>
+                                <input type="text" class="form-control" th:value="${staff.employeeCode}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tên</label>
+                                <input type="text" class="form-control" th:value="${staff.name}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Email FPT</label>
+                                <input type="text" class="form-control" th:value="${staff.fptEmail}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Email FE</label>
+                                <input type="text" class="form-control" th:value="${staff.feEmail}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách bộ môn, chuyên ngành -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list mr-2"></i>Danh sách bộ môn, chuyên ngành theo cơ sở
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#addSpecializationModal">
+                            <i class="fas fa-plus"></i> Thêm bộ môn chuyên ngành
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Cơ sở</th>
+                                <th>Bộ môn</th>
+                                <th>Chuyên ngành</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(specializations)}">
+                                <td colspan="5" class="text-center">Nhân viên này không có bộ môn chức vụ</td>
+                            </tr>
+                            <tr th:each="spec, stat : ${specializations}">
+                                <td th:text="${stat.count}"></td>
+                                <td th:text="${spec.facilityName}"></td>
+                                <td th:text="${spec.departmentName}"></td>
+                                <td th:text="${spec.majorName}"></td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" 
+                                            th:onclick="'removeSpecialization(\'' + ${spec.id} + '\')'">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3">
+                        <p class="text-danger font-italic">*** Chú ý: Nhân viên chỉ có một bộ môn và một chuyên ngành trong một cơ sở ***</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thêm bộ môn chuyên ngành -->
+    <div class="modal fade" id="addSpecializationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm bộ môn chuyên ngành</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSpecializationForm">
+                        <div class="form-group">
+                            <label>Cơ sở <span class="text-danger">*</span></label>
+                            <select class="form-control" id="facilityId" required onchange="loadDepartments()">
+                                <option value="">Chọn cơ sở</option>
+                                <option th:each="facility : ${facilities}" 
+                                        th:value="${facility.id}"
+                                        th:text="${facility.name}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bộ môn <span class="text-danger">*</span></label>
+                            <select class="form-control" id="departmentId" required onchange="loadMajors()" disabled>
+                                <option value="">Chọn bộ môn</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Chuyên ngành <span class="text-danger">*</span></label>
+                            <select class="form-control" id="majorId" required disabled>
+                                <option value="">Chọn chuyên ngành</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" onclick="addSpecialization()">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function loadDepartments() {
+            const facilityId = document.getElementById('facilityId').value;
+            const departmentSelect = document.getElementById('departmentId');
+            const majorSelect = document.getElementById('majorId');
+
+            departmentSelect.disabled = !facilityId;
+            majorSelect.disabled = true;
+            departmentSelect.innerHTML = '<option value="">Chọn bộ môn</option>';
+            majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+
+            if (facilityId) {
+                fetch('/specialized-subjects/facilities/' + facilityId + '/departments')
+                    .then(response => response.json())
+                    .then(departments => {
+                        departments.forEach(dept => {
+                            const option = new Option(dept.department.name, dept.id);
+                            departmentSelect.add(option);
+                        });
+                    })
+                    .catch(error => alert('Có lỗi xảy ra: ' + error));
+            }
+        }
+
+        function loadMajors() {
+            const departmentId = document.getElementById('departmentId').value;
+            const majorSelect = document.getElementById('majorId');
+
+            majorSelect.disabled = !departmentId;
+            majorSelect.innerHTML = '<option value="">Chọn chuyên ngành</option>';
+
+            if (departmentId) {
+                fetch('/specialized-subjects/department-facilities/' + departmentId + '/majors')
+                    .then(response => response.json())
+                    .then(majors => {
+                        majors.forEach(major => {
+                            const option = new Option(major.major.name, major.id);
+                            majorSelect.add(option);
+                        });
+                    })
+                    .catch(error => alert('Có lỗi xảy ra: ' + error));
+            }
+        }
+
+        function addSpecialization() {
+            const majorId = document.getElementById('majorId').value;
+            if (!majorId) {
+                alert('Vui lòng chọn đầy đủ thông tin');
+                return;
+            }
+
+            fetch('/specialized-subjects/staff/' + /*[[${staff.id}]]*/ + '/major-facilities/' + majorId, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    response.text().then(text => alert(text));
+                }
+            })
+            .catch(error => alert('Có lỗi xảy ra: ' + error));
+        }
+
+        function removeSpecialization(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa bộ môn chuyên ngành này?')) {
+                return;
+            }
+
+            fetch('/specialized-subjects/staff-specialization/' + id, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    response.text().then(text => alert(text));
+                }
+            })
+            .catch(error => alert('Có lỗi xảy ra: ' + error));
+        }
+    </script>
+</body>
+</html> 

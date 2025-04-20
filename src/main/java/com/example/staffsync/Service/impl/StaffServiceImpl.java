@@ -66,23 +66,49 @@ public class StaffServiceImpl implements StaffService {
         staffRepository.deleteById(id);
     }
 
+    @Override
+    public Optional<StaffDTO> findByCode(String code) {
+        return staffRepository.findByCode(code)
+                .map(this::convertToDTO);
+    }
+
+    @Override
+    public Optional<StaffDTO> findByFptEmail(String fptEmail) {
+        return staffRepository.findByFptEmail(fptEmail)
+                .map(this::convertToDTO);
+    }
+
+    @Override
+    public Optional<StaffDTO> findByFeEmail(String feEmail) {
+        return staffRepository.findByFeEmail(feEmail)
+                .map(this::convertToDTO);
+    }
+
     private StaffDTO convertToDTO(Staff staff) {
         StaffDTO dto = new StaffDTO();
         dto.setId(staff.getId());
         dto.setCode(staff.getCode());
         dto.setName(staff.getName());
         dto.setFptEmail(staff.getFptEmail());
-        dto.setFeEmail(staff.getFeEmail());
-        dto.setStatus(staff.getStatus() != null ? (byte) (staff.getStatus() ? 1 : 0) : null);
+        dto.setFeEmail(staff.getFeEmail() != null ? staff.getFeEmail().trim() : null);
+        dto.setStatus(Boolean.TRUE.equals(staff.getStatus()));
         return dto;
     }
 
     private void updateStaffFromDTO(Staff staff, StaffDTO dto) {
+        if (staff.getId() == null) {
+            staff.setId(UUID.randomUUID());
+        }
         staff.setCode(dto.getCode());
         staff.setName(dto.getName());
         staff.setFptEmail(dto.getFptEmail());
         staff.setFeEmail(dto.getFeEmail());
-        staff.setStatus(dto.getStatus() != null ? dto.getStatus().equals((byte) 1) : null);
+        staff.setStatus(dto.isStatus());
+        
+        if (staff.getCreatedDate() == null) {
+            staff.setCreatedDate(System.currentTimeMillis());
+        }
+        staff.setLastModifiedDate(System.currentTimeMillis());
     }
 
     // Validate logic for add/update
@@ -102,20 +128,6 @@ public class StaffServiceImpl implements StaffService {
             throw new IllegalArgumentException("Code must be less than 15 characters");
         if (dto.getName().length() > 100 || dto.getFptEmail().length() > 100 || dto.getFeEmail().length() > 100)
             throw new IllegalArgumentException("Fields must be less than 100 characters");
-
-        // Email format
-        if (!dto.getFptEmail().endsWith("@fpt.edu.vn"))
-            throw new IllegalArgumentException("FPT email must end with @fpt.edu.vn");
-        if (!dto.getFeEmail().endsWith("@fe.edu.vn"))
-            throw new IllegalArgumentException("FE email must end with @fe.edu.vn");
-        if (dto.getFptEmail().contains(" ") || !dto.getFptEmail().matches("^[a-zA-Z0-9.@]*$"))
-            throw new IllegalArgumentException("FPT email cannot contain spaces or Vietnamese characters");
-        if (dto.getFeEmail().contains(" ") || !dto.getFeEmail().matches("^[a-zA-Z0-9.@]*$"))
-            throw new IllegalArgumentException("FE email cannot contain spaces or Vietnamese characters");
-        if (!dto.getFptEmail().contains(dto.getCode()))
-            throw new IllegalArgumentException("FPT email must contain employee code");
-        if (!dto.getFeEmail().contains(dto.getCode()))
-            throw new IllegalArgumentException("FE email must contain employee code");
 
         // Duplicate check
         Optional<Staff> staffWithCode = staffRepository.findByCode(dto.getCode());

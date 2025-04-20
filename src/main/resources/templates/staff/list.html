@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: html(~{::title}, ~{::section})}">
+<head>
+    <title>Quản lý nhân viên - StaffSync</title>
+</head>
+<body>
+    <section>
+        <div class="page-heading">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Quản lý nhân viên</h3>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <div class="float-start float-lg-end">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                            <i class="bi bi-plus"></i> Thêm nhân viên
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- Search Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form id="searchForm" class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label for="searchName" class="form-label">Tên nhân viên</label>
+                            <input type="text" class="form-control" id="searchName" name="name" placeholder="Nhập tên nhân viên...">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="searchStatus" class="form-label">Trạng thái</label>
+                            <select class="form-select" id="searchStatus" name="status">
+                                <option value="">Tất cả</option>
+                                <option value="true">Đang làm việc</option>
+                                <option value="false">Đã nghỉ việc</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-search"></i> Tìm kiếm
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Staff List Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã nhân viên</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email FPT</th>
+                                    <th>Email FE</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody">
+                                <!-- Staff data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- No Data Message -->
+                    <div id="noDataMessage" class="text-center p-5" style="display: none;">
+                        <img src="/images/no-data.png" alt="No Data" style="max-width: 200px;">
+                        <p class="mt-3">Không có dữ liệu để hiển thị</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Staff Modal -->
+        <div class="modal fade" id="addStaffModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thêm nhân viên mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addStaffForm">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Mã nhân viên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="code" name="code" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fptEmail" class="form-label">Email FPT <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="fptEmail" name="fptEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feEmail" class="form-label">Email FE <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="feEmail" name="feEmail" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" form="addStaffForm" class="btn btn-primary">Thêm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Staff Modal -->
+        <div class="modal fade" id="editStaffModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chỉnh sửa thông tin nhân viên</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editStaffForm">
+                            <input type="hidden" id="editId" name="id">
+                            <div class="mb-3">
+                                <label for="editCode" class="form-label">Mã nhân viên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editCode" name="code" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFptEmail" class="form-label">Email FPT <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="editFptEmail" name="fptEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFeEmail" class="form-label">Email FE <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="editFeEmail" name="feEmail" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" form="editStaffForm" class="btn btn-primary">Lưu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 
