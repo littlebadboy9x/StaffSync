@@ -11,6 +11,9 @@ public class StaffMajorFacilityDTO {
     private String staffFptEmail;
     private String staffFeEmail;
     private UUID majorFacilityId;
+    private String majorCode;
+    private String departmentCode;
+    private String facilityCode;
     private String majorName;
     private String departmentName;
     private String facilityName;

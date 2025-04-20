@@ -1,0 +1,30 @@
+#toast-container > div {
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+}
+
+.toast {
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 15px 20px;
+}
+
+.toast-success {
+    background-color: #51a351 !important;
+    color: #fff !important;
+}
+
+.toast-error {
+    background-color: #bd362f !important;
+    color: #fff !important;
+}
+
+.toast-warning {
+    background-color: #f89406 !important;
+    color: #fff !important;
+}
+
+.toast-info {
+    background-color: #2f96b4 !important;
+    color: #fff !important;
+} 

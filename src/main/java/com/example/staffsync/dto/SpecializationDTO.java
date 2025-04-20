@@ -14,9 +14,15 @@ import java.util.List;
 @AllArgsConstructor
 public class SpecializationDTO {
     private UUID id;
+    private UUID facilityId;
+    private UUID departmentId;
+    private UUID majorId;
+    private UUID departmentFacilityId;
     private String facilityName;
     private String departmentName;
     private String majorName;
     private Byte status;
+    private Long createdDate;
+    private Long lastModifiedDate;
     private List<StaffDTO> staffList;
 } 
