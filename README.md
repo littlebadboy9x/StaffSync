@@ -163,4 +163,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-© 2025 Tran Viet Vuong - FPOLY. All rights reserved.
+© 2025 Tran Viet Vuong. All rights reserved.
